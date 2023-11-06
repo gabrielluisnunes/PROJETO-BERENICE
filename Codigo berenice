@@ -1,0 +1,446 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_nome 26
+
+typedef struct
+{
+    int codigo;
+    char nome[MAX_nome];
+    float preco;
+    int quantidade;
+    int vendidos;
+} produto;
+
+produto *estoque;
+
+int contador_items = 0;
+
+void atualizar();
+void cadastrar();
+void excluir();
+void exibir();
+void salvar();
+void submenu();
+void ler();
+int valida_cod(int codigo);
+int valida_caracter_especial(int cod);
+
+int main()
+{
+    int escolha, verify = 1;
+    do
+    {
+        printf("\n\n___Mercadinho da Berenice___\n");
+        printf("            1 - Produtos              \n");
+        printf("            2 - Vendas                \n");
+        printf("            3 - Sair                  \n");
+        printf("______________\n");
+        printf("\n\n Escolha --> ");
+        scanf("%d", &escolha);
+        if(escolha < 1 || escolha > 3)
+        {
+            printf("nDigite um numero valido");
+        }
+        else
+        {
+            verify = 0;
+        }
+    }
+    while(verify == 1);
+    switch(escolha)
+    {
+    case 1:
+        submenu();
+        break;
+    case 2:
+        break;
+    case 3:
+        break;
+    }
+}
+
+
+void submenu()
+{
+    int escolha;
+    while (escolha != 7)
+    {
+        printf("\n\n______Produtos______\n");
+        printf("        1 - Atualizar Produto         \n");
+        printf("        2 - Cadastrar Produto         \n");
+        printf("        3 -  Excluir Produto          \n");
+        printf("        4 -   Exibir Estoque          \n");
+        printf("        5 -    Salvar Dados           \n");
+        printf("        6 -     Ler Dados             \n");
+        printf("        7 -       Sair                \n");
+        printf(" _____________\n");
+        printf("\n\n Escolha --> ");
+        scanf("%d", &escolha);
+        if(escolha <= 0 || escolha > 7)
+        {
+            printf("Opcao Invalida!");
+        }
+    switch(escolha)
+    {
+    case 1:
+        atualizar();
+        break;
+    case 2:
+        cadastrar();
+        break;
+    case 3:
+        excluir();
+        break;
+    case 4:
+        exibir();
+        break;
+        case 5:
+        salvar();
+        break;
+    case 6:
+        ler();
+        break;
+    }
+    }
+    return;
+}
+///FALTA FAZER VERIFICAÇÃO DE NOME E SIMBOLO NO CODIGO;
+void cadastrar()
+{
+    int validar_codigo, funcao_validar,loop, loop_2;
+    int loop_preco = 2, loop_qtd = 2, loop_nome;
+    //Da um check vendo se o codigo e maior que 0
+    if(contador_items == 0)
+    {
+        estoque = (produto *)malloc(contador_items+1*sizeof(produto));
+    }
+    else
+    {
+        estoque = (produto *)realloc(estoque,((contador_items+1)*sizeof(produto)));
+    }
+    while(loop != 1)
+    {
+        printf("\n\n Digite o codigo do novo Produto: ");
+        scanf("%d", &validar_codigo);
+        getchar();
+        if(validar_codigo < 0)
+        {
+            printf("\nCodigo Invalido!");
+            loop = 2;
+        }
+        else
+        {
+
+            loop = 1;
+        }
+    }
+    //Aloca espaço na memoria para o ponteiro(estoque):
+    while(loop_2 != 1)
+    {
+        //Validação do código
+        funcao_validar = valida_cod(validar_codigo);
+        if(funcao_validar != -1)
+        {
+            printf("\n\nCodigo digitado ja existe!");
+            printf("\n\n Digite o codigo do novo Produto: ");
+            scanf("%d", &validar_codigo);
+            getchar();
+            loop_2 = 2;
+        }
+        else
+        {
+            loop_2 = 1;
+        }
+    }
+    //Cadastro:
+    estoque[contador_items].codigo = validar_codigo;
+    printf("\nDigite o nome do Produto: ");
+    gets(estoque[contador_items].nome);
+    fflush(stdin);
+    do
+    {
+        printf("\nDigite o Preco:  ");
+        scanf("%f", &estoque[contador_items].preco);
+        //Check Preço
+        if(estoque[contador_items].preco < 0)
+        {
+        }
+        else
+        {
+            loop_preco = 1;
+        }
+    }
+    while(loop_preco != 1);
+    do
+    {
+        printf("\nDigite Quantidade: ");
+        scanf("%d", &estoque[contador_items].quantidade);
+        //Check Quantidade
+        if(estoque[contador_items].quantidade < 0)
+        {
+        }
+        else
+        {
+            loop_qtd = 1;
+        }
+    }
+    while(loop_qtd != 1);
+    estoque[contador_items].vendidos = 0;
+    contador_items++;
+    submenu();
+}
+void excluir()
+{
+    int escolha, validar_codigo,cod,loop_cod,escolha_2;
+    printf("\n Pressione 0 para voltar");
+    printf("\n Pressione 1 para Excluir produto");
+    printf("\n--> ");
+    scanf("%d", &escolha);
+    if(escolha == 1)
+    {
+        while(loop_cod != 1){
+        printf("\nDigite o codigo do produto que deseja excluir: ");
+        scanf("%d", &cod);
+        if(cod <= 0)
+        {
+            printf("\nValor incorreto digitado");
+            loop_cod = 2;
+        }
+        else
+        validar_codigo = valida_cod(cod);
+        if(validar_codigo < 0){
+            printf("\nProduto nao encontrado");
+            submenu();
+        }
+        else
+        printf("\n\n Confirma excluir o item [%s] da lista de itens?", estoque[validar_codigo].nome);
+        printf("\n1 - Sim");
+        printf("\n2 - Nao");
+        printf("\n--> ");
+        scanf("%d", &escolha_2);
+        if(escolha_2 == 1)
+        {
+            for (int i = validar_codigo; i < contador_items - 1; i++)
+            {
+                estoque[i] = estoque[i + 1];
+            }
+            contador_items--; // Atualiza o contador de itens
+            // Realoca a memória para o novo tamanho
+            estoque = realloc(estoque, contador_items * sizeof(produto));
+            printf("\n Produto excluido com sucesso!\n");
+            submenu();
+        }
+        else
+        submenu();
+        }
+    }
+    else
+    {
+        submenu();
+    }
+}
+void exibir()
+{
+    int sair, loop = 1;
+    while(loop == 1)
+    {
+        printf("\n___Estoque da Berenice___");
+        printf("\n|Codigo|Nome do Item|Valor|Estoque|\n");
+        for(int i = 0; i<contador_items; i++)
+        {
+            printf("|%6d|%10s|%4.2f|%6d|\n", estoque[i].codigo, estoque[i].nome, estoque[i].preco,estoque[i].quantidade);
+        }
+        printf("\n Digite 0 para sair: ");
+        scanf("%d", &sair);
+        if(sair == 0)
+        {
+            loop = 0;
+        }
+        else
+        {
+        }
+    }
+    submenu();
+}
+
+void salvar()
+{
+    int escolha;
+    char c = '\n';
+    printf("%d", contador_items);
+    printf("\n Pressione 0 para voltar");
+    printf("\n Pressione 1 para salvar o estoque");
+    printf("\n--> ");
+    scanf("%d", &escolha);
+    if(escolha == 1)
+    {
+        FILE *agenda = fopen("agenda.txt" , "w");
+        if(agenda == NULL)
+        {
+            printf("\nArquivo vazio");
+            return;
+        }
+        else{
+            printf("\nAbrindo o arquivo...");
+        }
+        fprintf(agenda, "%d\n", contador_items);
+        for(int i = 0;i<contador_items;i++)
+        {
+            fprintf(agenda,"%d\n", estoque[i].codigo);
+            fprintf(agenda,"%s\n", estoque[i].nome);
+            fprintf(agenda,"%f\n", estoque[i].preco);
+            fprintf(agenda,"%d\n", estoque[i].quantidade);
+            fprintf(agenda, "%d\n", estoque[i].vendidos);
+        }
+        printf("\n\nItems Arquivados com sucesso!");
+        fclose(agenda);
+        submenu();
+    }
+    else
+    {
+        submenu();
+    }
+
+}
+
+void ler()
+{
+    FILE *agenda = fopen("agenda.txt", "r");
+    if(agenda == NULL)
+    {
+        printf("\n Arquivo nao encontrado");
+        submenu();
+    }
+    else
+    {
+        printf("\nArquivo encontrado");
+    }
+    fscanf (agenda,"%d\n",&contador_items);
+    estoque = (produto *) malloc(contador_items*sizeof(produto));
+    for(int i = 0; i<contador_items;i++)
+    {
+        fscanf(agenda,"%d\n", &estoque[i].codigo);
+        fscanf(agenda,"%s\n", &estoque[i].nome);
+        fscanf(agenda,"%f\n", &estoque[i].preco);
+        fscanf(agenda,"%d\n", &estoque[i].quantidade);
+        fscanf(agenda, "%d\n", &estoque[i].vendidos);
+    }
+    printf("\nInformacoes obtidas com sucesso");
+    fclose(agenda);
+    submenu();
+}
+
+void atualizar()
+{
+    int verifica_codigo, funcao_validar, loop_verificar,opcao,loop_menu,loop_qtd;
+    int quantidade;
+    float preco;
+    while(loop_verificar != 1)
+    {
+        printf("\n\n___Items Berenice__");
+        printf("\n|Codigo|Nome do Item|Valor|Estoque|\n");
+        for(int i = 0; i<contador_items; i++)
+        {
+            printf("|%6d|%10s|%4.2f|%6d|\n", estoque[i].codigo, estoque[i].nome, estoque[i].preco,estoque[i].quantidade);
+        }
+        printf("\n Digite 0 para retornar ao menu");
+        printf("\n\nDigite o Codigo do produto: ");
+        scanf("%d", &verifica_codigo);
+        funcao_validar = valida_cod(verifica_codigo);
+        if(verifica_codigo == 0)
+        {
+            submenu();
+        }
+        else if(funcao_validar != -1)
+        {
+            printf("\nCodigo Encontrado!");
+            printf("\n\n___Items Berenice__");
+            printf("\n|Codigo|Nome do Item|Valor|Estoque|\n");
+            for(int i = 0; i<contador_items; i++)
+            {
+                printf("|%6d|%10s|%4.2f|%6d|\n", estoque[i].codigo, estoque[i].nome, estoque[i].preco,estoque[i].quantidade);
+            }
+            do
+            {
+                printf("\n\nDeseja atualizar: ");
+                printf("\n   1. Quantidade");
+                printf("\n   2. Preco");
+                printf("\n   3. Voltar");
+                printf("\n Opcao: ");
+                scanf("%d", &opcao);
+                if(opcao > 3 || opcao <= 0)
+                {
+                    printf("\n\n Digite um numero valido.");
+                    loop_menu = 3;
+                }
+                else
+                {
+                    switch(opcao)
+                    {
+                    case 1:
+                        while(loop_qtd != 1)
+                        {
+                            printf("\nDigite a nova quantidade: ");
+                            scanf("%d", &quantidade);
+                            if(quantidade < 0)
+                            {
+                                printf("\n\nDigite uma quantidade valida!");
+                                loop_qtd = 5;
+                            }
+                            else
+                            {
+                                estoque[funcao_validar].quantidade = quantidade;
+                                loop_qtd = 1;
+                                printf("\n\n Estoque Alterado");
+                            }
+                        }
+                        break;
+                    case 2:
+                        loop_qtd = 2;
+                        while(loop_qtd != 1)
+                        {
+                            printf("\nDigite o novo preco: ");
+                            scanf("%f", &preco);
+                            if(preco < 0)
+                            {
+                                printf("\n\nDigite um preco valido!");
+                                loop_qtd = 5;
+                            }
+                            else
+                            {
+                                estoque[funcao_validar].preco = preco;
+                                loop_qtd = 1;
+                                printf("\n\n Preco Alterado");
+                            }
+                        }
+                        break;
+                    case 3:
+                        loop_menu = 1;
+                        loop_verificar = 10;
+                        break;
+                    }
+                }
+            }
+            while(loop_menu != 1);
+        }
+        else
+        {
+            printf("\nProduto nao encontrado no sistema");
+            printf("\nDigite novamente!\n");
+        }
+    }
+}
+
+int valida_cod(int codigo)
+{
+    for(int i = 0; i<contador_items; i++)
+    {
+        if(codigo == estoque[i].codigo)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
