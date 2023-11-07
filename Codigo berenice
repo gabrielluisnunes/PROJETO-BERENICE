@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.h>
+#include <time.h>
 
 #define MAX_nome 26
 
@@ -25,8 +26,10 @@ void cadastrar();
 void excluir();
 void exibir();
 void salvar();
+void salvar_txt_binario();
 void submenu();
 void ler();
+void ler_txt_binario();
 int valida_cod(int codigo);
 
 ///Venda
@@ -35,6 +38,7 @@ void pagamento(float valor_t);
 void cupom(float valor_t);
 void venda();
 void relatorio();
+void salvar_relatorio_txt();
 
 int main()
 {
@@ -42,11 +46,11 @@ int main()
     int escolha,verify = 0;
     do
     {
-        printf("\n\n____Mercadinho da Berenice___\n");
+        printf("\n\n_______Mercadinho da Berenice_______\n");
         printf("            1 - Produtos              \n");
         printf("            2 - Vendas                \n");
         printf("            3 - Sair                  \n");
-        printf("______________\n");
+        printf("____________________________________\n");
         printf("\n\n Escolha --> ");
         scanf("%d", &escolha);
         if(escolha < 1 || escolha > 3)
@@ -78,24 +82,26 @@ int main()
 void submenu()
 {
     int escolha;
-    while (escolha != 7)
+    while (escolha != 9)
     {
-        printf("\n\n_______Produtos_____\n");
+        printf("\n\n________________Produtos____________\n");
         printf("        1 - Atualizar Produto         \n");
         printf("        2 - Cadastrar Produto         \n");
         printf("        3 -  Excluir Produto          \n");
         printf("        4 -   Exibir Estoque          \n");
         printf("        5 -    Salvar Dados           \n");
         printf("        6 -     Ler Dados             \n");
-        printf("        7 -       Sair                \n");
-        printf("______________\n");
+        printf("        7 -    Save Binario           \n");
+        printf("        8 -    Ler Binario            \n");
+        printf("        9 -       Sair                \n");
+        printf("___________________________________\n");
         printf("\n\n Escolha --> ");
         scanf("%d", &escolha);
-        if(escolha <= 0 || escolha > 7)
+        if(escolha <= 0 || escolha > 9)
         {
             printf("Opcao Invalida!");
         }
-        else if (escolha == 7)
+        else if (escolha == 9)
         {
             main();
         }
@@ -120,6 +126,13 @@ void submenu()
         case 6:
             ler();
             break;
+        case 7:
+            salvar_txt_binario();
+            break;
+        case 8:
+            ler_txt_binario();
+            break;
+
         }
     }
     main();
@@ -130,11 +143,11 @@ void submenu_venda()
     int escolha,loop;
     while(loop != 1)
     {
-        printf("\n\n _Venda Berenice_\n");
+        printf("\n\n ______________Venda Berenice____________\n");
         printf("        1 -    Realizar Venda              \n");
         printf("        2 -  Relatorio de Vendas           \n");
         printf("        3 -        Voltar                  \n");
-        printf(" _____\n");
+        printf(" ________________________________________\n");
         printf("\n\n --> ");
         scanf("%d", &escolha);
         if(escolha > 3 || escolha < 1)
@@ -173,9 +186,8 @@ void cadastrar()
     }
     while(loop != 1)
     {
-        printf("\n\n Digite o codigo do novo Produto: ");
+        printf("\n\nDigite o codigo do novo Produto: ");
         scanf("%d", &validar_codigo);
-        getchar();
         if(validar_codigo < 0)
         {
             printf("\nCodigo Invalido!");
@@ -208,6 +220,7 @@ void cadastrar()
     //Cadastro:
     estoque[contador_items].codigo = validar_codigo;
     printf("\nDigite o nome do Produto: ");
+    getchar();
     gets(estoque[contador_items].nome);
     fflush(stdin);
     do
@@ -249,10 +262,10 @@ void excluir()
 {
     int escolha, validar_codigo,cod,loop_cod,escolha_2;
     printf("\n__Estoque da Berenice__");
-    printf("\n|Codigo|Nome do Item|Valor|Estoque|\n");
+    printf("\nCodigo Nome do Item Valor Estoque\n");
     for(int i = 0; i<contador_items; i++)
     {
-        printf("|%6d|%10s|%4.2f|%6d|\n", estoque[i].codigo, estoque[i].nome, estoque[i].preco,estoque[i].quantidade);
+        printf("|%6d|%12s|%4.2f|%6d|\n", estoque[i].codigo, estoque[i].nome, estoque[i].preco,estoque[i].quantidade);
     }
     printf("\n Pressione 0 para voltar");
     printf("\n Pressione 1 para Excluir produto");
@@ -312,7 +325,7 @@ void exibir()
         printf("\n|Codigo|Nome do Item|Valor|Estoque|\n");
         for(int i = 0; i<contador_items; i++)
         {
-            printf("|%6d|%10s|%4.2f|%6d|\n", estoque[i].codigo, estoque[i].nome, estoque[i].preco,estoque[i].quantidade);
+            printf("|%6d|%12s|%4.2f|%6d|\n", estoque[i].codigo, estoque[i].nome, estoque[i].preco,estoque[i].quantidade);
         }
         printf("\n Digite 0 para sair: ");
         scanf("%d", &sair);
@@ -368,6 +381,41 @@ void salvar()
 
 }
 
+void salvar_txt_binario()
+{
+int escolha;
+    printf("%d", contador_items);
+    printf("\n Pressione 0 para voltar");
+    printf("\n Pressione 1 para salvar em formato binario");
+    printf("\n--> ");
+    scanf("%d", &escolha);
+
+    if (escolha == 1)
+    {
+        FILE *arquivo_b = fopen("BereBinario.bin", "wb");
+        if (arquivo_b == NULL)
+        {
+            printf("\nFalha ao abrir o arquivo");
+            return;
+        }
+
+        fwrite(&contador_items, sizeof(int), 1, arquivo_b);
+
+        for (int i = 0; i < contador_items; i++)
+        {
+            fwrite(&estoque[i].codigo, sizeof(int), 1, arquivo_b);
+            fwrite(estoque[i].nome, sizeof(char), 30, arquivo_b);
+            fwrite(&estoque[i].preco, sizeof(float), 1, arquivo_b);
+            fwrite(&estoque[i].quantidade, sizeof(int), 1, arquivo_b);
+        }
+
+        printf("\n\nItens arquivados em Formato binario com sucesso!");
+        fclose(arquivo_b);
+    }
+
+    submenu();
+}
+
 void ler()
 {
     FILE *agenda = fopen("agenda.txt", "r");
@@ -395,6 +443,33 @@ void ler()
     submenu();
 }
 
+void ler_txt_binario()
+{
+    FILE *arquivo_b = fopen("BereBinario.bin", "rb");
+
+    if (arquivo_b == NULL)
+    {
+        printf("\nFalha ao abrir o arquivo");
+        return;
+    }
+
+    fread(&contador_items, sizeof(int), 1, arquivo_b);
+
+    estoque = (produto *)realloc(estoque, contador_items * sizeof(produto));
+
+    for (int i = 0; i < contador_items; i++)
+    {
+        fread(&estoque[i].codigo, sizeof(int), 1, arquivo_b);
+        fread(estoque[i].nome, sizeof(char), 30, arquivo_b);
+        fread(&estoque[i].preco, sizeof(float), 1, arquivo_b);
+        fread(&estoque[i].quantidade, sizeof(int), 1, arquivo_b);
+    }
+
+    printf("\n\nItens lidos em formato binario com sucesso!");
+    fclose(arquivo_b);
+    submenu();
+}
+
 void atualizar()
 {
     int verifica_codigo, funcao_validar, loop_verificar,opcao,loop_menu,loop_qtd;
@@ -402,11 +477,11 @@ void atualizar()
     float preco;
     while(loop_verificar != 1)
     {
-        printf("\n\n__Items Berenice_");
+        printf("\n\n_________Items Berenice__________");
         printf("\n|Codigo|Nome do Item|Valor|Estoque|\n");
         for(int i = 0; i<contador_items; i++)
         {
-            printf("|%6d|%10s|%4.2f|%6d|\n", estoque[i].codigo, estoque[i].nome, estoque[i].preco,estoque[i].quantidade);
+            printf("|%6d|%12s|%4.2f|%6d|\n", estoque[i].codigo, estoque[i].nome, estoque[i].preco,estoque[i].quantidade);
         }
         printf("\n Digite 0 para retornar ao menu");
         printf("\n\nDigite o Codigo do produto: ");
@@ -565,7 +640,6 @@ void venda()
         valor_total = valor_total + sub_total;
         estoque[validar].vendidos = qnt_venda;
         estoque[validar].vendidos_relatorio = estoque[validar].vendidos;
-        printf("\n%f", valor_total);
         loop_maior = 3;
     }while(loop_maior == 3);
 
@@ -584,12 +658,12 @@ void pagamento(float valor_t)
 
     printf("\n O valor total eh: %.2f",valor_t);
 
-    printf("\n\n________");
+    printf("\n\n______________________");
     printf("\n | Opcoes de Pagamento |");
-    printf("\n |_______|");
+    printf("\n |_____________________|");
     printf("\n |     1.A vista       |");
     printf("\n |     2.Parcelado     |");
-    printf("\n |_______|");
+    printf("\n |_____________________|");
     printf("\n Selecione um opcao de pagamento:");
     scanf("%d", &opcao_pagamento);
     getchar();
@@ -617,7 +691,7 @@ void pagamento(float valor_t)
         printf("\nValor Total: R$%.2f \n", valor_t);
         do
         {
-            printf("\n Informe o valor recebido: ");
+            printf("\nInforme o valor recebido: ");
             scanf("%f", &valor_recebido);
             troco = valor_recebido - valor_t;
             if (troco < 0)
@@ -663,7 +737,7 @@ void pagamento(float valor_t)
                 }
                 valor_parcela = valor_t / parcelas;
                 printf("\nValor por parcela: %.2f ",valor_parcela);
-                printf("\nO valor total da compra parcelada eh: %.2f", valor_t);
+                printf("\nValor total: %.2f", valor_t);
             }
         }while(checar_parcelas != 0);
     }
@@ -672,11 +746,12 @@ void pagamento(float valor_t)
         printf("\nForma de pagamento invalida!!");
 
     }
-    printf("\nDigite 1 para continuar -->");
+    printf("\nDigite 1 para confirmar");
+    printf("\n --> ");
     scanf("%d", &continuar);
 
     cupom(valor_t);
-    printf("\n__________Trocol: %.2f|\n", troco);
+    printf("____________Troco: %.2f\n", troco);
     for(int i = 0;i<contador_items;i++)
             {
                 estoque[i].vendidos = 0;
@@ -696,12 +771,51 @@ void relatorio()
     }
         for(int i = 0; i<contador_items; i++)
         {
-
             if(estoque[i].vendidos_relatorio > 0){
-            printf("|%6d|%10s|%4d|%4d|\n",i+1, estoque[i].nome,estoque[i].quantidade,estoque[i].vendidos_relatorio);
+            printf("|%6d|%12s|%4d|%4d|\n",i+1, estoque[i].nome,estoque[i].quantidade,estoque[i].vendidos_relatorio);
             }
         }
-        printf("___________\n");
+        printf("________________________________\n");
+        for(int i = 0; i<contador_items; i++)
+        {
+            if(estoque[i].vendidos_relatorio == 0)
+            {
+
+            }
+            else
+            {
+                salvar_relatorio_txt();
+            }
+        }
+}
+
+void salvar_relatorio_txt()
+{
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    char nome_arquivo[50];
+    snprintf(nome_arquivo, sizeof(nome_arquivo), "%d-%02d-%02d_%02d-%02d-%02d.txt",
+             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+
+    FILE* arquivo = fopen(nome_arquivo, "w");
+
+    if(arquivo == NULL)
+    {
+        printf("Nao foi possivel abrir o arquivo %s",nome_arquivo);
+        return;
+    }
+
+    for (int i = 0; i <contador_items; i++)
+    {
+        if(estoque[i].vendidos_relatorio>0)
+        {
+            fprintf(arquivo,"%d\n", estoque[i].codigo);
+            fprintf(arquivo,"%s\n", estoque[i].nome);
+            fprintf(arquivo,"%d\n", estoque[i].quantidade);
+            fprintf(arquivo, "%d\n\n", estoque[i].vendidos_relatorio);
+        }
+
+}
 }
 
 void cupom(float valor_t)
@@ -711,10 +825,10 @@ void cupom(float valor_t)
         for(int i = 0; i<contador_items; i++)
         {
             if(estoque[i].vendidos > 0){
-            printf("|%6d|%10s|%4d|\n",i+1, estoque[i].nome, estoque[i].vendidos);
+            printf("|%6d|%12s|%4d|\n",i+1, estoque[i].nome, estoque[i].vendidos);
             }
         }
-        printf("__________Subtotal: %.2f|\n", valor_t);
+        printf("__________Subtotal: %.2f\n", valor_t);
 }
 
 int valida_cod(int codigo)
